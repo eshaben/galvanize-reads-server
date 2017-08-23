@@ -4,13 +4,13 @@ const express = require('express')
 
 
  function getAllBooks(req, res){
-   return knex('book')
+   return knex('book').select('*')
    .then(books => {
      res.json({
-       books: books,
-       message: "success"
+       books
      })
    })
+   .catch(error => res.json({ error }))
  }
 
  function getBookById(req, res){
@@ -18,10 +18,15 @@ const express = require('express')
    return knex('book')
    .where('id', id)
    .then(book => {
-     res.json({
-       book: book,
-       message: "success"
-     })
+     book = book[0]
+     return knex('book').select('author.*')
+      .join('book_author', 'book.id', 'book_author.bookID')
+      .join('author', 'author.id', 'book_author.authorID')
+      .where('book.id', id)
+        .then(authors => {
+          book.authors = authors
+          res.json(book)
+        })
    })
  }
 
@@ -206,5 +211,5 @@ function getBooksByAuthor(req, res){
    deleteAuthorById,
    getAuthorsOfBook,
    getAuthorsOfSpecificBook,
-   getBooksByAuthor
+   getBooksByAuthor,
  }
