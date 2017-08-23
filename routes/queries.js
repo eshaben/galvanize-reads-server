@@ -25,16 +25,28 @@ const express = require('express')
    })
  }
 
+ function validBook(post){
+   let validTitle = typeof post.title == 'string' && post.title.trim() != '';
+   return validTitle
+ }
+
  function postNewBook(req, res){
-   return knex('book')
-   .insert(req.body)
-   .returning('*')
-   .then(newBook => {
-     res.json({
-       newBook: newBook,
-       message: "success"
+   let post = req.body
+   console.log(req.body);
+
+   if(validBook(post)){
+     return knex('book')
+     .insert(req.body)
+     .returning('*')
+     .then(newBook => {
+       res.json({
+         newBook: newBook,
+         message: "success"
+       })
      })
-   })
+   } else {
+     res.json({message: "Invalid title input"})
+   }
  }
 
  function editBookById(req, res){
@@ -84,16 +96,29 @@ const express = require('express')
    })
  }
 
- function postNewAuthor(req, res){
-   return knex('author')
-   .insert(req.body)
-   .returning('*')
-   .then(newAuthor => {
-     res.json({
-       newAuthor: newAuthor,
-       message: "success"
+function validAuthor(post){
+  let validFirstName = typeof post.first_name == 'string' && post.first_name.trim() != '';
+  let validLastName = typeof post.last_name == 'string' && post.last_name.trim() != '';
+
+  return validFirstName && validLastName
+}
+
+function postNewAuthor(req, res){
+   let post = req.body
+
+   if(validAuthor(post)){
+     return knex('author')
+     .insert(req.body)
+     .returning('*')
+     .then(newAuthor => {
+       res.json({
+         newAuthor: newAuthor,
+         message: "success"
+       })
      })
-   })
+   } else {
+     res.json({message: 'Invalid author name input'})
+   }
  }
 
  function editAuthorById(req, res){
