@@ -122,6 +122,50 @@ const express = require('express')
    })
  }
 
+function getAuthorsOfBook(req, res){
+  let id = req.params.id
+  console.log(id);
+  return knex('book').select('*')
+  .innerJoin("book_author", "book.id", "book_author.bookID")
+  .innerJoin("author", "author.id", "book_author.authorID")
+  // .where("book.id", id)
+  .then(books => {
+    res.json({
+      books: books,
+      message: "success"
+    })
+  })
+}
+
+function getAuthorsOfSpecificBook(req, res){
+  let id = req.params.id
+  console.log(id);
+  return knex('book').select('*')
+  .innerJoin("book_author", "book.id", "book_author.bookID")
+  .innerJoin("author", "author.id", "book_author.authorID")
+  .where("book.id", id)
+  .then(books => {
+    res.json({
+      books: books,
+      message: "success"
+    })
+  })
+}
+
+function getBooksByAuthor(req, res){
+  let id = req.params.id
+  console.log(id);
+  return knex('book').select('*')
+  .innerJoin("book_author", "book.id", "book_author.bookID")
+  .innerJoin("author", "author.id", "book_author.authorID")
+  .where("author.id", id)
+  .then(books => {
+    res.json({
+      books: books,
+      message: "success"
+    })
+  })
+}
 
 
  module.exports = {
@@ -134,5 +178,8 @@ const express = require('express')
    getAuthorById,
    postNewAuthor,
    editAuthorById,
-   deleteAuthorById
+   deleteAuthorById,
+   getAuthorsOfBook,
+   getAuthorsOfSpecificBook,
+   getBooksByAuthor
  }
