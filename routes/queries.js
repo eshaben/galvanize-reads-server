@@ -52,22 +52,52 @@ const express = require('express')
  }
 
  function postNewBook(req, res){
-   let post = req.body
-   console.log(req.body);
-
-   if(validBook(post)){
-     return knex('book')
-     .insert(req.body)
-     .returning('*')
-     .then(newBook => {
-       res.json({
-         newBook: newBook,
-         message: "success"
-       })
-     })
-   } else {
-     res.json({message: "Invalid title input"})
+   let data = req.body
+   let book = {
+     title: data.title,
+     genre: data.genre,
+     description: data.description,
+     "cover_url": data.cover_url,
    }
+   return knex('book').insert(book).returning('id')
+   .then(id => {
+     book.id = Number(id);
+     let author = {
+       first_name: data.first_name,
+       last_name: data.last_name,
+       biography: data.biography,
+       "portrait_url": data.portrait_url
+     }
+     return knex('author').insert(author).returning('id')
+     .then(authorID => {
+       let tableData ={
+         bookID: book.id,
+         authorID: Number(authorID)
+       }
+       console.log(tableData);
+       return knex('book_author').insert(tableData)
+     })
+     .then(() => {
+       res.json({message: 'success'})
+     })
+  })
+  //  if(validBook(data) && validAuthor(data)){
+  //
+  //  }
+
+  //  if(validBook(post)){
+  //    return knex('book')
+  //    .insert(req.body)
+  //    .returning('*')
+  //    .then(newBook => {
+  //      res.json({
+  //        newBook: newBook,
+  //        message: "success"
+  //      })
+  //    })
+  //  } else {
+  //    res.json({message: "Invalid title input"})
+  //  }
  }
 
  function editBookById(req, res){
