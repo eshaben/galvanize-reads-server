@@ -5,13 +5,29 @@ const express = require('express')
 
  function getAllBooks(req, res){
    return knex('book').select('*')
-   .then(books => {
-     res.json({
-       books
+   .then((books) => {
+     return Promise.all(books.map(book => {
+       let id = book.id
+       return knex('book')
+       .where('id', id)
+       .then(book => {
+         book = book[0]
+         return knex('book').select('author.*')
+          .join('book_author', 'book.id', 'book_author.bookID')
+          .join('author', 'author.id', 'book_author.authorID')
+          .where('book.id', id)
+          .then(authors => {
+            book.authors = authors
+            return book
+       })
      })
+   }))
+   .then(books => {
+     res.json(books)
    })
-   .catch(error => res.json({ error }))
- }
+   .catch(error => res.json({error}))
+  })
+}
 
  function getBookById(req, res){
    let id = req.params.id
@@ -152,51 +168,6 @@ function postNewAuthor(req, res){
    })
  }
 
-function getAuthorsOfBook(req, res){
-  let id = req.params.id
-  console.log(id);
-  return knex('book').select('*')
-  .innerJoin("book_author", "book.id", "book_author.bookID")
-  .innerJoin("author", "author.id", "book_author.authorID")
-  // .where("book.id", id)
-  .then(books => {
-    res.json({
-      books: books,
-      message: "success"
-    })
-  })
-}
-
-function getAuthorsOfSpecificBook(req, res){
-  let id = req.params.id
-  console.log(id);
-  return knex('book').select('*')
-  .innerJoin("book_author", "book.id", "book_author.bookID")
-  .innerJoin("author", "author.id", "book_author.authorID")
-  .where("book.id", id)
-  .then(books => {
-    res.json({
-      books: books,
-      message: "success"
-    })
-  })
-}
-
-function getBooksByAuthor(req, res){
-  let id = req.params.id
-  console.log(id);
-  return knex('book').select('*')
-  .innerJoin("book_author", "book.id", "book_author.bookID")
-  .innerJoin("author", "author.id", "book_author.authorID")
-  .where("author.id", id)
-  .then(books => {
-    res.json({
-      books: books,
-      message: "success"
-    })
-  })
-}
-
 
  module.exports = {
    getAllBooks,
@@ -209,7 +180,4 @@ function getBooksByAuthor(req, res){
    postNewAuthor,
    editAuthorById,
    deleteAuthorById,
-   getAuthorsOfBook,
-   getAuthorsOfSpecificBook,
-   getBooksByAuthor,
  }

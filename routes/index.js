@@ -20,9 +20,5 @@ router.get('/authors/:id', queries.getAuthorById)
 router.post('/authors', queries.postNewAuthor)
 router.put('/authors/:id', queries.editAuthorById)
 router.delete('/authors/:id', queries.deleteAuthorById)
-router.get('/authorsofbook', queries.getAuthorsOfBook)
-router.get('/authorsofbook/:id', queries.getAuthorsOfSpecificBook)
-router.get('/booksbyauthor/:id', queries.getBooksByAuthor)
-
 
 module.exports = router;
